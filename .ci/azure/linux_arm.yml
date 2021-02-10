@@ -38,7 +38,6 @@ jobs:
       uname -a
       echo Python3 info ; which python3 ; python3 --version
       echo Python info ; which python ; python --version
-      echo Java info ; which java ; java -version
       echo gcc info ; which gcc ; gcc --version
       lsb_release
       env
@@ -74,7 +73,7 @@ jobs:
     path: testdata
 
   - script: |
-      sudo apt --assume-yes install libusb-1.0-0-dev
+      sudo apt --assume-yes install scons crossbuild-essential-arm64
       # Speed up build
       wget https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-linux.zip
       unzip ninja-linux.zip
@@ -90,7 +89,10 @@ jobs:
         -GNinja
         -DVERBOSE_BUILD=ON
         -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+        -DCMAKE_TOOLCHAIN_FILE=$(OPENVINO_REPO_DIR)/cmake/arm.toolchain.cmake
         -DIE_EXTRA_MODULES=$(REPO_DIR)/modules
+        -DBUILD_java_api=OFF
+        -DTHREADS_PTHREAD_ARG=-pthread
         -DENABLE_PYTHON=ON
         -DPYTHON_EXECUTABLE=/usr/bin/python3
         -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
@@ -104,22 +106,3 @@ jobs:
 
   - script: ls -alR $(OPENVINO_REPO_DIR)/bin/
     displayName: 'List files'
-
-  - script: java -cp "*" OpenVinoTestRunner
-    workingDirectory: $(BIN_DIR)/lib
-    env:
-      LD_LIBRARY_PATH: $(BIN_DIR)/lib
-    displayName: 'Java tests'
-
-  - script: |
-      python3 -m pip install -U setuptools==51.0.0
-      python3 -m pip install -r requirements.txt
-    workingDirectory: $(REPO_DIR)/modules/mo_pytorch/test
-    displayName: 'Install PyTorch tests dependencies'
-
-  - script: python3 run_tests.py
-    env:
-      LD_LIBRARY_PATH: $(BIN_DIR)/lib
-      PYTHONPATH: "$(OPENVINO_REPO_DIR)/model-optimizer:$(BIN_DIR)/lib/python_api/python3.6:$(REPO_DIR)/modules/mo_pytorch"
-    workingDirectory: $(REPO_DIR)/modules/mo_pytorch/test
-    displayName: 'PyTorch conversion tests'
