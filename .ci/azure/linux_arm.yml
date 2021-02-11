@@ -98,13 +98,12 @@ jobs:
         $(OPENCV_REPO_DIR)
       workingDirectory: $(BUILD_DIR_OPENCV)
 
-  - script: ninja
+  - script: |
+      ninja
+      ninja install
     workingDirectory: $(BUILD_DIR_OPENCV)
     displayName: 'Build OpenCV Lin'
 
-  - script: make install
-    workingDirectory: $(BUILD_DIR_OPENCV)
-    displayName: 'Install OpenCV Lin'
   - task: CMake@1
     inputs:
       cmakeArgs: >
