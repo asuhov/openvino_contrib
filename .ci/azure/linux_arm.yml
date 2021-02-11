@@ -93,6 +93,8 @@ jobs:
         -DIE_EXTRA_MODULES=$(REPO_DIR)/modules
         -DBUILD_java_api=OFF
         -DENABLE_SSE42=OFF
+        -DENABLE_MYRIAD=OFF
+        -DENABLE_GNA=OFF
         -DENABLE_PYTHON=ON
         -DPYTHON_EXECUTABLE=/usr/bin/python3
         -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
