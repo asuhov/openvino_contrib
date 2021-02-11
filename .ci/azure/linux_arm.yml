@@ -85,7 +85,6 @@ jobs:
     lfs: true
     path: opencv
 
-name: 
   - script: |
       sudo apt --assume-yes install scons crossbuild-essential-arm64 libprotoc-dev protobuf-compiler
       # Speed up build
