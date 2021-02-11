@@ -80,11 +80,6 @@ jobs:
     lfs: true
     path: testdata
 
-  - checkout: opencv
-    clean: true
-    lfs: true
-    path: opencv
-
   - script: |
       sudo apt --assume-yes install scons crossbuild-essential-arm64 libprotoc-dev protobuf-compiler
       # Speed up build
@@ -93,6 +88,7 @@ jobs:
       sudo cp -v ninja /usr/local/bin/
       python3 -m pip install --upgrade pip
       python3 -m pip install cython
+      git clone https://github.com/opencv/opencv.git --depth 0 $(OPENCV_REPO_DIR)
     workingDirectory: $(WORK_DIR)
     displayName: 'Install dependencies'
 
