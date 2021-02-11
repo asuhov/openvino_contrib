@@ -100,7 +100,7 @@ jobs:
   - script: ninja
     workingDirectory: $(BUILD_DIR)
     displayName: 'Build IE Lin'
-  - task: CMake@2
+  - task: CMake@1
     inputs:
       cmakeArgs: >
         -GNinja
