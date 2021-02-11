@@ -29,6 +29,7 @@ jobs:
     MODELS_PATH: $(REPO_DIR)/../testdata
     WORK_DIR: $(Pipeline.Workspace)/_w
     BUILD_DIR: $(WORK_DIR)/build
+    BUILD_DIR_ARM: $(WORK_DIR)/build_arm
     BIN_DIR: $(OPENVINO_REPO_DIR)/bin/intel64/$(BUILD_TYPE)
 
   steps:
@@ -90,8 +91,6 @@ jobs:
         -DVERBOSE_BUILD=ON
         -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
         -DCMAKE_TOOLCHAIN_FILE=$(OPENVINO_REPO_DIR)/cmake/arm64.toolchain.cmake
-        -DIE_EXTRA_MODULES=$(REPO_DIR)/modules
-        -DBUILD_java_api=OFF
         -DENABLE_SSE42=OFF
         -DENABLE_MYRIAD=OFF
         -DENABLE_GNA=OFF
@@ -100,7 +99,22 @@ jobs:
 
   - script: ninja
     workingDirectory: $(BUILD_DIR)
-    displayName: 'Build Lin'
+    displayName: 'Build IE Lin'
+  - task: CMake@2
+    inputs:
+      cmakeArgs: >
+        -GNinja
+        -DVERBOSE_BUILD=ON
+        -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+        -DInferenceEngineDeveloperPackage_DIR=$(BUILD_DIR)
+        -DCMAKE_TOOLCHAIN_FILE=$(OPENVINO_REPO_DIR)/cmake/arm64.toolchain.cmake
+        -DARM_COMPUTE_TARGET_ARCH=arm64-v8a
+        $(REPO_DIR)
+      workingDirectory: $(BUILD_DIR_ARM)
+
+  - script: ninja
+    workingDirectory: $(BUILD_DIR_ARM)
+    displayName: 'Build ARM'
 
   - script: ls -alR $(OPENVINO_REPO_DIR)/bin/
     displayName: 'List files'
