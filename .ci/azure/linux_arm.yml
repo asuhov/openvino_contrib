@@ -10,6 +10,11 @@ resources:
     endpoint: openvinotoolkit
     name: openvinotoolkit/testdata
 
+  - repository: opencv
+    type: github
+    endpoint: opencv
+    name: opencv/opencv
+
 jobs:
 - job: Lin
   # About 150% of total time
@@ -26,10 +31,12 @@ jobs:
     BUILD_TYPE: Release
     REPO_DIR: $(Build.Repository.LocalPath)
     OPENVINO_REPO_DIR: $(REPO_DIR)/../openvino
+    OPENCV_REPO_DIR: $(REPO_DIR)/../opencv
     MODELS_PATH: $(REPO_DIR)/../testdata
     WORK_DIR: $(Pipeline.Workspace)/_w
     BUILD_DIR: $(WORK_DIR)/build
     BUILD_DIR_ARM: $(WORK_DIR)/build_arm
+    BUILD_DIR_OPENCV: $(WORK_DIR)/build_opencv
     BIN_DIR: $(OPENVINO_REPO_DIR)/bin/intel64/$(BUILD_TYPE)
 
   steps:
@@ -73,6 +80,12 @@ jobs:
     lfs: true
     path: testdata
 
+  - checkout: opencv
+    clean: true
+    lfs: true
+    path: opencv
+
+name: 
   - script: |
       sudo apt --assume-yes install scons crossbuild-essential-arm64 libprotoc-dev protobuf-compiler
       # Speed up build
@@ -90,7 +103,26 @@ jobs:
         -GNinja
         -DVERBOSE_BUILD=ON
         -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+        -DBUILD_LIST=imgcodecs,videoio,highgui
+        -DCMAKE_TOOLCHAIN_FILE=$(OPENCV_REPO_DIR)/platforms/linux/aarch64-gnu.toolchain.cmake
+        $(OPENCV_REPO_DIR)
+      workingDirectory: $(BUILD_DIR_OPENCV)
+
+  - script: ninja
+    workingDirectory: $(BUILD_DIR_OPENCV)
+    displayName: 'Build OpenCV Lin'
+
+  - script: make install
+    workingDirectory: $(BUILD_DIR_OPENCV)
+    displayName: 'Install OpenCV Lin'
+  - task: CMake@1
+    inputs:
+      cmakeArgs: >
+        -GNinja
+        -DVERBOSE_BUILD=ON
+        -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
         -DCMAKE_TOOLCHAIN_FILE=$(OPENVINO_REPO_DIR)/cmake/arm64.toolchain.cmake
+        -DOpenCV_DIR=$(BUILD_DIR_OPENCV)/install/lib/cmake/opencv4
         -DENABLE_SSE42=OFF
         -DENABLE_MYRIAD=OFF
         -DENABLE_GNA=OFF
