@@ -83,7 +83,7 @@ jobs:
       sudo cp -v ninja /usr/local/bin/
       python3 -m pip install --upgrade pip
       python3 -m pip install cython
-      git clone https://github.com/opencv/opencv.git --depth 0 $(OPENCV_REPO_DIR)
+      git clone https://github.com/opencv/opencv.git --depth 1 $(OPENCV_REPO_DIR)
     workingDirectory: $(WORK_DIR)
     displayName: 'Install dependencies'
 
