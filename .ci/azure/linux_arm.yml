@@ -73,7 +73,7 @@ jobs:
     path: testdata
 
   - script: |
-      sudo apt --assume-yes install scons crossbuild-essential-arm64
+      sudo apt --assume-yes install scons crossbuild-essential-arm64 libprotoc-dev protobuf-compiler
       # Speed up build
       wget https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-linux.zip
       unzip ninja-linux.zip
@@ -89,10 +89,10 @@ jobs:
         -GNinja
         -DVERBOSE_BUILD=ON
         -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
-        -DCMAKE_TOOLCHAIN_FILE=$(OPENVINO_REPO_DIR)/cmake/arm.toolchain.cmake
+        -DCMAKE_TOOLCHAIN_FILE=$(OPENVINO_REPO_DIR)/cmake/arm64.toolchain.cmake
         -DIE_EXTRA_MODULES=$(REPO_DIR)/modules
         -DBUILD_java_api=OFF
-        -DTHREADS_PTHREAD_ARG=-pthread
+        -DENABLE_SSE42=OFF
         -DENABLE_PYTHON=ON
         -DPYTHON_EXECUTABLE=/usr/bin/python3
         -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
